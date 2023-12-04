@@ -14,32 +14,54 @@ const { weapons, characters } = require('./datasets/ultima');
 const { dinosaurs, humans, movies } = require('./datasets/dinosaurs');
 
 
+// CMD P to search for the data files, or another file
+
 
 // SINGLE DATASETS
 // =================================================================
 
 // DATASET: kitties from ./datasets/kitties
 const kittyPrompts = {
-  orangePetNames() {
+  orangePetNames(pets) {
     // Return an array of just the names of kitties who are orange e.g.
         // ['Tiger', 'Snickers']
+    /* 
+    pseudo:
+    data: array of 4 elements (objects)
+    output: also an array of two elements (strings)
+    
 
-        /* CODE GOES HERE */
-
-    // Annotation:
-    // Write your annotation here as a comment
+    code: 
+    const kitties = [];
+    const orangepets = pets.forEach(cat => {
+      if(cat.color === 'orange'){
+        kitties.push(cat.name)
+      } });
+     return kitties;
+    */
+    const orangePets = pets.filter(pet => pet.color === 'orange');
+    const orangePetNames = orangePets.map(pet => pet.name);
+    return orangePetNames;
   },
 
-  sortByAge() {
+  sortByAge(pets) {
     // Sort the kitties by their age
 
     /* CODE GOES HERE */
 
     // Annotation:
     // Write your annotation here as a comment
-  },
 
-  growUp() {
+    // const animals = [...pets]
+  
+    // const sortedPets = animals.sort((a, b) => b.age - a.age);
+    // return sortedPets;
+
+    pets.sort((a, b) => b.age - a.age);
+    return pets
+  },
+  
+  growUp(pets) {
     // Return an array of kitties who have all grown up by 2 years e.g.
     // [{
     //   name: 'Felicia',
@@ -51,9 +73,12 @@ const kittyPrompts = {
     //   age: 7,
     //   color: 'orange'
     // },
-    // ...etc]
+    
 
     /* CODE GOES HERE */
+ 
+  pets.forEach(pet => pet.age += 2);
+  return pets;
   }
 };
 
@@ -77,7 +102,7 @@ const kittyPrompts = {
 
 // DATASET: clubs from ./datasets/clubs
 const clubPrompts = {
-  membersBelongingToClubs() {
+  membersBelongingToClubs(clubs) {
     // Your function should access the clubs data through a parameter (it is being passed as an argument in the test file)
     // Create an object whose keys are the names of people, and whose values are
     // arrays that include the names of the clubs that person is a part of. e.g.
@@ -86,9 +111,23 @@ const clubPrompts = {
     //   Pam: ['Drama', 'Art', 'Chess'],
     //   ...etc
     // }
-
-    /* CODE GOES HERE */
-
+    
+    /* pseudo
+    return an object with keys of the names of people and values of the clubs they belong to
+    data: array of club objects, in each object is a nested members array
+    output: an object with keys of the names of people and values of the clubs they belong to
+    approach: reduce the clubs array to an object with the names of people as keys and the values as an array of clubs
+    */
+    return clubs.reduce((acc, club) => {
+      club.members.forEach(member => {
+        if(!acc[member]){
+          acc[member] = [];
+        }
+        acc[member].push(club.club);
+      })
+      return acc;
+     
+    }, {});
     // Annotation:
     // Write your annotation here as a comment
   }
@@ -123,9 +162,13 @@ const modPrompts = {
     // ]
 
     /* CODE GOES HERE */
-
-    // Annotation:
-    // Write your annotation here as a comment
+    const studentsPerMod = mods.map(mod => {
+      return {
+        mod: mod.mod,
+        studentsPerInstructor: mod.students / mod.instructors
+      }
+    });
+    return studentsPerMod;
   }
 };
 
@@ -147,7 +190,7 @@ const modPrompts = {
 
 // DATASET: cakes from ./datasets/cakes
 const cakePrompts = {
-  stockPerCake() {
+  stockPerCake(cakes) {
     // Return an array of objects that include just the flavor of the cake and how
     // much of that cake is in stock e.g.
     // [
@@ -155,8 +198,15 @@ const cakePrompts = {
     //    { flavor: 'yellow', inStock: 14 },
     //    ..etc
     // ]
-
     /* CODE GOES HERE */
+
+    return cakes.map(cake => {
+      return {
+        flavor: cake.cakeFlavor,
+        inStock: cake.inStock
+      }
+    });
+
 
     // Annotation:
     // Write your annotation here as a comment
@@ -184,7 +234,8 @@ const cakePrompts = {
     // ]
 
     /* CODE GOES HERE */
-
+    return cakes.filter(cake => cake.inStock > 0);
+    
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -194,18 +245,40 @@ const cakePrompts = {
     // 59
 
     /* CODE GOES HERE */
+    return cakes.reduce((acc, cake) => acc + cake.inStock || 0, 0);
 
+
+      return cakes.reduce((acc, cake) =>{
+        const currentStock = cake.inStock;
+        // if(!currentStock){
+        //   return acc
+        // }
+        acc += currentStock
+
+      return acc
+      }, 0)
+
+      
     // Annotation:
     // Write your annotation here as a comment
   },
 
-  allToppings() {
+  allToppings(cakes) {
     // Return an array of all unique toppings (no duplicates) needed to bake
     // every cake in the dataset e.g.
     // ['dutch process cocoa', 'toasted sugar', 'smoked sea salt', 'berries', ..etc]
 
     /* CODE GOES HERE */
+      
+    const listOfToppings = [];
+    cakes.forEach(cake => {
+      cake.toppings.forEach(topping => listOfToppings.push(topping))
+      
+      // listOfToppings.forEach(topping);
+    })
+    // let allTopps = [...new Set(listOfToppings)]
 
+    return allTopps = [...new Set(listOfToppings)]
     // Annotation:
     // Write your annotation here as a comment
   },
@@ -221,28 +294,27 @@ const cakePrompts = {
     //    ...etc
     // }
 
-    /* CODE GOES HERE */
-
+    /* 
+    data : array of cake objects, in each object is a nested toppings array. 
+    output: an object consisting of "topping keys" and the amount of toppings as a value
+    approach: reduce the cakes array to an object with the topping as the key and the value as the amount of toppings
+    */
+    const list = cakes.reduce((acc, cake) => {
+      cake.toppings.forEach(topping => {
+        
+      })
+      return acc;
+    }, {});
     // Annotation:
     // Write your annotation here as a comment
   }
 };
 
-
-
-
-
-
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-
-
-
-
-
 
 // DATASET: classrooms from ./datasets/classrooms
 const classPrompts = {
